@@ -24,8 +24,11 @@ Reinforcement Learning solution of the [OpenAI's Cartpole](https://gym.openai.co
 - Training and Test examples were also generated using the same
 - Neural Network Model was trained on the datasets using the Tensorflow Keras API
 - The top score achieved by the model was 10000  which was the limit set by the environment 😁 
-- Training Accuracy : 64%
-- Test Accuracy : 61%
+- **Training Accuracy** : 64%
+- **Test Accuracy** : 61%
+- To Try out:
+  - Clone the Repo
+  - `python3 cartpool.py`
 ## Demo
 <div align="center">
   <img src="assets/cartpole.gif" width=600px>
