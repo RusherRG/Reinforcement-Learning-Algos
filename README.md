@@ -33,9 +33,9 @@ Reinforcement Learning solution of the [OpenAI's Cartpole](https://gym.openai.co
 
 ## Future Plans
 
-- [] Try to improve the accuracy of the model
-- [] Increasing the value of `score_req`(Min score considered for training set examples) for better quality of examples
-- [] Check the maximum score the model can achieve 😜
+- [ ] Try to improve the accuracy of the model
+- [ ] Increasing the value of `score_req`(Min score considered for training set examples) for better quality of examples
+- [ ] Check the maximum score the model can achieve 😜
 
 ------------------------------------------
 ## Contributing
