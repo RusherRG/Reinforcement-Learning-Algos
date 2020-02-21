@@ -14,9 +14,9 @@ env = gym.make('CartPoleNoLimit-v0')
 env.reset()
 goal_steps = 10000 #Score is goal_steps stop after this
 score_req = 100 #Minimum score in dataset
+epochs = 5
 initial_games = 2000 #Total number of iterations
 drop = 0.2
-epochs = 5
 
 def init_population(initial_games,name):
     training_data = [] #stores the observations and action taken
