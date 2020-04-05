@@ -25,6 +25,7 @@ This repository consists of the reinforcement learning solutions using different
 
 - Basic neural networks with state as input and actions as output
 - Q-table lookup with (state, action) pairs
+- DQN
 
 ## Contributing
 Open to `enhancements` & `bug-fixes`

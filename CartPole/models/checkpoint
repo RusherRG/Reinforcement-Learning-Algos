@@ -1,2 +1,0 @@
-model_checkpoint_path: "epochs_5_accuracy_61.model"
-all_model_checkpoint_paths: "epochs_5_accuracy_61.model"
