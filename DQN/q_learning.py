@@ -1,4 +1,5 @@
 import gym
+import cv2
 import tensorflow as tf
 import numpy as np
 from tqdm import tqdm
@@ -12,7 +13,7 @@ OUTPUT_LAYER = 18
 REPLAY_MEMORY_SIZE = 25000
 MINIBATCH_SIZE = 64
 DISCOUNT = 0.95
-UPDATE_TARGET_EVERY = 5
+UPDATE_TARGET_EVERY = 100
 EPSILON = 1
 
 
@@ -37,30 +38,31 @@ class DQN:
     def create_model(self):
         model = tf.keras.Sequential([
             tf.keras.layers.Conv2D(
-                32, (3, 3), activation='relu', input_shape=self.env.observation_space.shape),
+                32, (3, 3), activation='relu', input_shape=(*self.env.observation_space.shape[:2], 1)),
             tf.keras.layers.MaxPooling2D((2, 2)),
 
             tf.keras.layers.Conv2D(32, (3, 3), activation='relu'),
             tf.keras.layers.MaxPooling2D((2, 2)),
 
-            tf.keras.layers.Conv2D(64, (3, 3), activation='relu'),
-            tf.keras.layers.MaxPooling2D((2, 2)),
+            # tf.keras.layers.Conv2D(64, (3, 3), activation='relu'),
+            # tf.keras.layers.MaxPooling2D((2, 2)),
 
             tf.keras.layers.Flatten(),
-            tf.keras.layers.Dense(512, activation='relu'),
-            tf.keras.layers.Dropout(self.DROPOUT),
-
             tf.keras.layers.Dense(256, activation='relu'),
             tf.keras.layers.Dropout(self.DROPOUT),
 
-            tf.keras.layers.Dense(128, activation='relu'),
-            tf.keras.layers.Dropout(self.DROPOUT),
+            # tf.keras.layers.Dense(256, activation='relu'),
+            # tf.keras.layers.Dropout(self.DROPOUT),
+
+            # tf.keras.layers.Dense(128, activation='relu'),
+            # tf.keras.layers.Dropout(self.DROPOUT),
 
             tf.keras.layers.Dense(64, activation='relu'),
+            tf.keras.layers.Dropout(self.DROPOUT),
 
             tf.keras.layers.Dense(self.OUTPUT_LAYER, activation='linear')
         ])
-
+        print(model.summary())
         model.compile(optimizer='Adam',
                       loss='MSE', metrics=['accuracy'])
 
@@ -103,16 +105,18 @@ class DQN:
         self.model.fit(np.array(X)/255, np.array(Y),
                        batch_size=self.MINIBATCH_SIZE)
 
-        if episode_end:
-            self.episode_counter += 1
+        # if episode_end:
+        self.episode_counter += 1
 
         if self.episode_counter >= self.UPDATE_TARGET_EVERY:
+            print("Updating target model")
             self.target_model.set_weights(self.model.get_weights())
             self.episode_counter = 0
 
 
 class Agent:
     def __init__(self):
+        self.env_name = None
         self.env = None
         self.episodes = None
         self.epsilon = EPSILON
@@ -131,7 +135,7 @@ class Agent:
             '-ep',
             '--episodes',
             type=int,
-            default=500,
+            default=200,
             help='Number of episodes to run'
         )
         argcomplete.autocomplete(argparser)
@@ -140,17 +144,37 @@ class Agent:
         return args
 
     def initialize_env(self, args):
+        self.env_name = args.env
         self.env = gym.make(args.env)
         self.episodes = args.episodes
-        self.epsilon_decay_value = 0.000001
+        self.epsilon_decay_value = 0.000003
+
+    def convert_gray(self, state):
+        state = cv2.cvtColor(state, cv2.COLOR_BGR2GRAY)
+        state = state.reshape(*state.shape, 1)
+        return state
+
+    def calculate_reward(self, reward):
+        new_reward = {
+            -1: -1,
+            0: 0,
+            1: 1
+        }
+        return new_reward.get(reward, reward)
+
     def learn(self):
         dqn = DQN(self.env)
 
         stats = {'scores': [], 'avg': [], 'min': [], 'max': []}
         for ep in tqdm(range(1, self.episodes + 1), ascii=True, unit='episodes'):
+            if ep % 25 == 0:
+                self.play(dqn.model)
+
             print(self.epsilon)
             action_stats = [0, 0]
             current_state = self.env.reset()
+            current_state = self.convert_gray(current_state)
+
             done = False
             score = 0
             steps = 0
@@ -167,12 +191,14 @@ class Agent:
                     action_stats[1] += 1
                     action = self.env.action_space.sample()
 
-                # print(action)
                 new_state, reward, done, _ = self.env.step(action)
                 if ep % self.results_every_n_episodes == 0:
                     self.env.render()
-                # self.env.render()
+
+                reward = self.calculate_reward(reward)
                 score += reward
+
+                new_state = self.convert_gray(new_state)
 
                 memory = (current_state, action, reward, done, new_state)
                 dqn.update_memory(memory)
@@ -188,40 +214,33 @@ class Agent:
             print(action_stats)
             print(score)
             stats['scores'].append(score)
-            # if ep % self.results_every_n_episodes == 0:
-            #     stats['avg'].append(sum(
-            #         stats['scores'][-self.results_every_n_episodes:])/self.results_every_n_episodes)
-            #     stats['min'].append(
-            #         min(stats['scores'][-self.results_every_n_episodes:]))
-            #     stats['max'].append(
-            #         max(stats['scores'][-self.results_every_n_episodes:]))
-            #     print("Episode: {}\tAverage: {}\tMin: {}\tMax: {}".format(
-            #         ep, stats['avg'][-1], stats['min'][-1], stats['max'][-1]))
-
         self.env.close()
         return dqn.model
 
     def save_model(self, model):
         model.save_weights(
-            "./models/{}.model".format(str(datetime.datetime.now())))
+            "./models/{}_{}.model".format(self.env_name, str(datetime.datetime.now())))
         return
 
     def play(self, model):
-        for _ in range(5):
+        actions = {}
+        for _ in range(3):
             current_state = self.env.reset()
+            current_state = self.convert_gray(current_state)
             done = False
             score = 0
             while not done:
-                action = model.predict(np.array(current_state).reshape(-1, *current_state.shape)/255)[0]
-                print(action)
-                action = np.argmax(action)
-                print(action)
-                current_state, reward, done, _ = self.env.step(action)
-                self.env.render()
+                action = model.predict(
+                    np.array(current_state).reshape(-1, *current_state.shape)/255)[0]
 
+                action = np.argmax(action)
+                actions[action] = actions.get(action, 0) + 1
+
+                current_state, reward, done, _ = self.env.step(action)
+                current_state = self.convert_gray(current_state)
+                self.env.render()
                 score += reward
-            print(score)
-    
+
     def run(self):
         args = self.parser()
         self.initialize_env(args)
