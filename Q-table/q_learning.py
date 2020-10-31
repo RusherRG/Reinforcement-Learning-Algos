@@ -51,9 +51,7 @@ class QLearning():
             help='Size of state space'
         )
         argcomplete.autocomplete(argparser)
-        args = argparser.parse_args()
-
-        return args
+        return argparser.parse_args()
 
     def initialize_env(self, args):
         self.env = args.env

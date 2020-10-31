@@ -139,9 +139,7 @@ class Agent:
             help='Number of episodes to run'
         )
         argcomplete.autocomplete(argparser)
-        args = argparser.parse_args()
-
-        return args
+        return argparser.parse_args()
 
     def initialize_env(self, args):
         self.env_name = args.env
