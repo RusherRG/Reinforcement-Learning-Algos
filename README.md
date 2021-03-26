@@ -1,18 +1,12 @@
 <div align="center">
 
-# OpenAI-Gyms
+# Reinforcement Learning Algorithms
 
 [![made-with-python](https://forthebadge.com/images/badges/made-with-python.svg)](https://www.python.org/)
 
 </div>
 
-Reinforcement Learning solution of the [OpenAI's Gym Environments](https://gym.openai.com/envs).
-
-## About
-
-[OpenAI-Gym](https://gym.openai.com) is a toolkit for developing and comparing reinforcement learning algorithms.
-
-This repository consists of the reinforcement learning solutions using different algorithms for various OpenAI-Gym environments.
+Reinforcement Learning solutions for various open-source environments like the [OpenAI's Gym Environments](https://gym.openai.com/envs).
 
 ## Algorithms tried so far
 
@@ -27,4 +21,4 @@ Open to `enhancements` & `bug-fixes`
 
 ## Note
 
-The project was made just to try out the OpenAI Gym and I hope to solve many more OpenAI Gym Environments.
+The project was made just to try out the OpenAI Gym and some other gym environments. I'm still learning Reinforcement Learning and will try to implement more algorithms and try other environments.
