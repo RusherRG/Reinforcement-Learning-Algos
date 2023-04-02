@@ -57,9 +57,7 @@ class Agent:
             help='Play using pre-trained models'
         )
         argcomplete.autocomplete(argparser)
-        args = argparser.parse_args()
-
-        return args
+        return argparser.parse_args()
 
     def initialize_env(self, args):
         self.env_name = args.env
@@ -139,8 +137,7 @@ class Agent:
         return
 
     def load_model(self):
-        model = None
-        return model
+        return None
 
     def play(self):
         model = self.load_model()

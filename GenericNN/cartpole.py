@@ -61,7 +61,7 @@ def init_population(initial_games,name):
 #init_population()
 
 def neural_network_model():
-    model = tf.keras.Sequential([
+    return tf.keras.Sequential([
         tf.keras.layers.Dense(128, activation='relu', input_shape=(4,)),
         tf.keras.layers.Dropout(drop),
         tf.keras.layers.Dense(256, activation='relu'),
@@ -74,7 +74,6 @@ def neural_network_model():
         tf.keras.layers.Dropout(drop),
         tf.keras.layers.Dense(2, activation='softmax')
         ])
-    return model
 
 def play(model):
     number_games = 10
@@ -132,8 +131,7 @@ def train_model(x_train, y_train, x_test, y_test):
     return model
 
 def loadmodel(name):
-    model = tf.keras.models.load_model(name)
-    return model
+    return tf.keras.models.load_model(name)
 
 def lets_play():
     #generate_data_sets()
@@ -151,7 +149,7 @@ lets_play()
 
 
 def some_random_games_first():
-    for episode in range(5):
+    for _ in range(5):
         env.reset()
         for t in range(goal_steps):
             env.render()
@@ -163,7 +161,7 @@ def some_random_games_first():
     env.close()
 
 def env_test():
-    for i_episode in range(20):
+    for _ in range(20):
         observation = env.reset()
         for t in range(100):
             env.render()
